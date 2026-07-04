@@ -5,17 +5,20 @@ import type { AddOn, Service } from "@/types";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { formatPrice, cn } from "@/lib/utils";
 import WhatsAppIcon from "@/components/ui/WhatsAppIcon";
+import { logEnquiry } from "@/actions/enquiries";
 
 interface PackageBuilderProps {
   service: Service;
   addons: AddOn[];
+  whatsappNumber?: string;
 }
 
-export default function PackageBuilder({ service, addons }: PackageBuilderProps) {
+export default function PackageBuilder({ service, addons, whatsappNumber }: PackageBuilderProps) {
   const [selected, setSelected] = useState<string[]>([]);
   const [eventDate, setEventDate] = useState("");
   const [location, setLocation] = useState("");
   const [persons, setPersons] = useState("");
+  const [referenceReelUrl, setReferenceReelUrl] = useState("");
 
   const selectedAddons = useMemo(
     () => addons.filter((a) => selected.includes(a.name)),
@@ -34,7 +37,24 @@ export default function PackageBuilder({ service, addons }: PackageBuilderProps)
     eventDate,
     location,
     personCount: persons ? Number(persons) : undefined,
-  });
+    referenceReelUrl: referenceReelUrl || undefined,
+  }, whatsappNumber);
+
+  const handleEnquiryClick = async () => {
+    try {
+      await logEnquiry({
+        serviceName: service.name,
+        totalPrice: total,
+        eventDate: eventDate || undefined,
+        location: location || undefined,
+        personCount: persons ? Number(persons) : undefined,
+        referenceReelUrl: referenceReelUrl || undefined,
+        addOns: selectedAddons.map((a) => ({ name: a.name, price: a.price })),
+      });
+    } catch (err) {
+      console.error("Failed to log enquiry:", err);
+    }
+  };
 
   function toggle(name: string) {
     setSelected((prev) =>
@@ -135,6 +155,21 @@ export default function PackageBuilder({ service, addons }: PackageBuilderProps)
         </div>
       </div>
 
+      {/* Reference Instagram Reel URL */}
+      <div className="mt-4">
+        <label htmlFor="pb-reference" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-foreground/60">
+          Inspiration / Reference Reel URL (Optional)
+        </label>
+        <input
+          id="pb-reference"
+          type="url"
+          placeholder="Paste another makeup artist's Instagram video or look link..."
+          value={referenceReelUrl}
+          onChange={(e) => setReferenceReelUrl(e.target.value)}
+          className="w-full rounded-lg border border-primary/20 bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
+        />
+      </div>
+
       {/* Price summary */}
       <div className="mt-6 rounded-xl bg-muted p-4">
         <div className="flex justify-between text-sm text-foreground/70">
@@ -159,6 +194,7 @@ export default function PackageBuilder({ service, addons }: PackageBuilderProps)
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={handleEnquiryClick}
         className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-whatsapp px-7 py-4 text-base font-semibold text-white shadow-md shadow-whatsapp/25 transition-all hover:-translate-y-0.5 hover:brightness-95"
       >
         <WhatsAppIcon className="h-5 w-5" />

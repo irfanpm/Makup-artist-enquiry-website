@@ -4,6 +4,9 @@ import type { Service } from "@/types";
 import { formatPrice, formatDuration } from "@/lib/utils";
 
 export default function ServiceCard({ service }: { service: Service }) {
+  const firstImage = service.images?.[0];
+  const imgSrc = typeof firstImage === "object" && firstImage !== null ? (firstImage as any).url : (firstImage || "/images/placeholder.jpg");
+
   return (
     <Link
       href={`/services/${service.slug}`}
@@ -11,7 +14,7 @@ export default function ServiceCard({ service }: { service: Service }) {
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <Image
-          src={service.images[0]}
+          src={imgSrc}
           alt={service.name}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"

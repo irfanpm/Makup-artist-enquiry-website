@@ -14,16 +14,17 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] as const } },
 };
 
-export default function Hero() {
-  const nameWords = artist.name.split(" ");
+export default function Hero({ artistData }: { artistData?: any }) {
+  const currentArtist = artistData || artist;
+  const nameWords = currentArtist.name.split(" ");
 
   return (
     <section className="relative flex min-h-[92vh] items-center overflow-hidden">
       {/* Cinematic slow-zoom background */}
       <div className="absolute inset-0">
         <Image
-          src={artist.heroImage}
-          alt={`${artist.name} — ${artist.title}`}
+          src={currentArtist.heroImage}
+          alt={`${currentArtist.name} — ${currentArtist.title}`}
           fill
           priority
           sizes="100vw"
@@ -50,11 +51,11 @@ export default function Hero() {
             className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] backdrop-blur-sm"
           >
             <Sparkle className="h-3 w-3 text-gold" />
-            {artist.title}
+            {currentArtist.title}
           </motion.p>
 
           <h1 className="font-serif text-5xl font-semibold leading-[1.05] md:text-7xl">
-            {nameWords.map((word, i) => (
+            {nameWords.map((word: string, i: number) => (
               <motion.span
                 key={word}
                 variants={fadeUp}
@@ -66,15 +67,15 @@ export default function Hero() {
           </h1>
 
           <motion.p variants={fadeUp} className="mt-6 max-w-md text-lg leading-relaxed text-white/85 md:text-xl">
-            “{artist.tagline}” — premium bridal artistry with{" "}
-            <span className="text-gold">{artist.yearsExperience}+ years</span> of
+            “{currentArtist.tagline}” — premium bridal artistry with{" "}
+            <span className="text-gold">{currentArtist.yearsExperience}+ years</span> of
             experience across Kerala.
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center gap-4">
             <span className="relative">
               <span className="animate-glow absolute inset-0 rounded-full bg-whatsapp/60 blur-md" />
-              <Button href={quickEnquiryUrl()} variant="whatsapp" external className="relative">
+              <Button href={quickEnquiryUrl(undefined, currentArtist.whatsappNumber)} variant="whatsapp" external className="relative">
                 <WhatsAppIcon className="h-5 w-5" />
                 WhatsApp Enquiry
               </Button>
@@ -101,11 +102,11 @@ export default function Hero() {
             </div>
             <div>
               <span className="flex items-center gap-2">
-                <Rating value={artist.rating} />
-                <span className="text-sm font-bold">{artist.rating}</span>
+                <Rating value={currentArtist.rating} />
+                <span className="text-sm font-bold">{currentArtist.rating}</span>
               </span>
               <p className="text-xs text-white/75">
-                Loved by {artist.reviewCount}+ brides
+                Loved by {currentArtist.reviewCount}+ brides
               </p>
             </div>
           </motion.div>

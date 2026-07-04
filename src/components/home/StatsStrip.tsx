@@ -1,13 +1,15 @@
 import { artist } from "@/data/artist";
 import CountUp from "@/components/ui/CountUp";
 
-export default function StatsStrip() {
+export default function StatsStrip({ artistData }: { artistData?: any }) {
+  const currentArtist = artistData || artist;
   const stats = [
-    { end: artist.yearsExperience, suffix: "+", label: "Years Experience" },
-    { end: artist.bridesCount, suffix: "+", label: "Brides Transformed" },
-    { end: artist.certifications.length, suffix: "+", label: "Certifications" },
-    { end: artist.rating, suffix: "★", decimals: 1, label: "Average Rating" },
+    { end: currentArtist.yearsExperience, suffix: "+", label: "Years Experience" },
+    { end: currentArtist.bridesCount, suffix: "+", label: "Brides Transformed" },
+    { end: currentArtist.certifications.length, suffix: "+", label: "Certifications" },
+    { end: currentArtist.rating, suffix: "★", decimals: 1, label: "Average Rating" },
   ];
+
 
   return (
     <section className="bg-secondary py-12">
