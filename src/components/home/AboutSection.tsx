@@ -5,7 +5,8 @@ import Reveal from "@/components/ui/Reveal";
 
 export default function AboutSection() {
   return (
-    <section id="about" className="py-16 md:py-24">
+    <section id="about" className="py-16 md:py-24"> 
+    {/* section */}
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 md:grid-cols-2 md:px-6">
         <Reveal from="left" className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-3xl shadow-xl shadow-primary/15">
           <Image
