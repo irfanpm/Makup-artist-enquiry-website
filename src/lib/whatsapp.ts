@@ -7,14 +7,20 @@ export interface EnquiryPayload {
   eventDate?: string;
   location?: string;
   personCount?: number;
+  referenceReelUrl?: string;
 }
 
 /** Builds a wa.me deep link with a pre-filled enquiry message. */
-export function buildWhatsAppUrl(p: EnquiryPayload) {
+export function buildWhatsAppUrl(p: EnquiryPayload, whatsappNumber?: string) {
+  const number = whatsappNumber || artist.whatsappNumber;
   const addOnLines = p.addOns.length
     ? `Selected Add-ons:\n${p.addOns
         .map((a) => `• ${a.name} (+₹${a.price.toLocaleString("en-IN")})`)
         .join("\n")}\n\n`
+    : "";
+
+  const referenceLine = p.referenceReelUrl
+    ? `Reference Look / Reel: ${p.referenceReelUrl}\n`
     : "";
 
   const msg = `Hello! I'm interested in *${p.serviceName}*.
@@ -23,16 +29,18 @@ ${addOnLines}Estimated Total: ₹${p.totalPrice.toLocaleString("en-IN")}
 Event Date: ${p.eventDate || "-"}
 Location: ${p.location || "-"}
 No. of Persons: ${p.personCount || "-"}
-
+${referenceLine}
 Please share more details. Thank you!`;
 
-  return `https://wa.me/${artist.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+  return `https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
 }
 
 /** Generic enquiry link for the floating button / hero CTA. */
-export function quickEnquiryUrl(message?: string) {
+export function quickEnquiryUrl(message?: string, whatsappNumber?: string) {
+  const number = whatsappNumber || artist.whatsappNumber;
   const msg =
     message ??
     `Hello! I found your website and would like to know more about your makeup services.`;
-  return `https://wa.me/${artist.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+  return `https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
 }
+

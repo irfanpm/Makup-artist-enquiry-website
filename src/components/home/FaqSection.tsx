@@ -2,7 +2,8 @@ import { faqs } from "@/data/faqs";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 
-export default function FaqSection() {
+export default function FaqSection({ faqsData }: { faqsData?: any[] }) {
+  const list = faqsData || faqs;
   return (
     <section id="faq" className="py-16 md:py-24">
       <div className="mx-auto max-w-3xl px-4 md:px-6">
@@ -11,8 +12,8 @@ export default function FaqSection() {
           title="Frequently Asked Questions"
         />
         <div className="space-y-3">
-          {faqs.map((faq, i) => (
-            <Reveal key={faq.question} delay={i * 0.08}>
+          {list.map((faq, i) => (
+            <Reveal key={faq.question || i} delay={i * 0.08}>
             <details
               className="faq group rounded-2xl bg-white shadow-sm ring-1 ring-primary/10"
             >
