@@ -195,7 +195,7 @@ export default function PackageBuilder({ service, addons, whatsappNumber }: Pack
         target="_blank"
         rel="noopener noreferrer"
         onClick={handleEnquiryClick}
-        className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-whatsapp px-7 py-4 text-base font-semibold text-white shadow-md shadow-whatsapp/25 transition-all hover:-translate-y-0.5 hover:brightness-95"
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-7 py-4 text-base font-semibold text-white shadow-md shadow-primary/25 transition-all hover:-translate-y-0.5 hover:bg-primary-dark"
       >
         <WhatsAppIcon className="h-5 w-5" />
         Send Enquiry on WhatsApp

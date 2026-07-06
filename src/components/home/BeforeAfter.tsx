@@ -8,13 +8,20 @@ import Reveal from "@/components/ui/Reveal";
 const img = (id: string) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1000&q=80`;
 
-// DUMMY: same photo — "before" shown desaturated. Replace with the client's
-// real before/after photo pair for the launch version.
-const beforeImage = img("photo-1544005313-94ddf0286df2");
-const afterImage = img("photo-1544005313-94ddf0286df2");
+interface BeforeAfterProps {
+  beforeImage?: string;
+  afterImage?: string;
+}
 
 /** Interactive drag slider revealing the makeover transformation. */
-export default function BeforeAfter() {
+export default function BeforeAfter({
+  beforeImage: propBeforeImage,
+  afterImage: propAfterImage,
+}: BeforeAfterProps) {
+  const hasCustomBefore = !!propBeforeImage;
+  const beforeImage = propBeforeImage || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1000&q=80";
+  const afterImage = propAfterImage || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1000&q=80";
+
   const [position, setPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -38,7 +45,7 @@ export default function BeforeAfter() {
         <Reveal>
           <div
             ref={containerRef}
-            className="relative mx-auto aspect-[4/3] max-w-3xl cursor-ew-resize touch-none select-none overflow-hidden rounded-3xl shadow-2xl shadow-primary/20 md:aspect-[16/9]"
+            className="relative mx-auto aspect-[3/4] max-w-md cursor-ew-resize touch-none select-none overflow-hidden rounded-3xl shadow-2xl shadow-primary/20 md:aspect-[3/4]"
             onPointerDown={(e) => {
               dragging.current = true;
               e.currentTarget.setPointerCapture(e.pointerId);
@@ -65,7 +72,7 @@ export default function BeforeAfter() {
                 alt="Before makeup"
                 fill
                 sizes="(max-width: 768px) 100vw, 768px"
-                className="object-cover brightness-90 grayscale"
+                className={`object-cover ${!hasCustomBefore ? "brightness-90 grayscale" : ""}`}
               />
             </div>
 

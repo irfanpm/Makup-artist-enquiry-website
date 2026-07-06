@@ -65,7 +65,7 @@ export default async function HomePage() {
       <AboutSection artistData={artistData} />
       <BrandsStrip />
       <FeaturedServices servicesData={services} />
-      <BeforeAfter />
+      <BeforeAfter beforeImage={settings?.beforeImage?.url} afterImage={settings?.afterImage?.url} />
       <HowItWorks />
       <PortfolioPreview portfolioData={portfolio} />
       <WhyChooseMe />

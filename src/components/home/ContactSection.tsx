@@ -56,7 +56,7 @@ export default function ContactSection({ artistData }: { artistData?: any }) {
               href={quickEnquiryUrl(undefined, currentArtist.whatsappNumber)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-2xl bg-whatsapp p-5 font-semibold text-white shadow-md shadow-whatsapp/25 transition hover:brightness-95"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-primary p-5 font-semibold text-white shadow-md shadow-primary/25 transition hover:bg-primary-dark"
             >
               <WhatsAppIcon className="h-5 w-5" />
               Chat on WhatsApp

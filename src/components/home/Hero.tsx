@@ -74,8 +74,8 @@ export default function Hero({ artistData }: { artistData?: any }) {
 
           <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center gap-4">
             <span className="relative">
-              <span className="animate-glow absolute inset-0 rounded-full bg-whatsapp/60 blur-md" />
-              <Button href={quickEnquiryUrl(undefined, currentArtist.whatsappNumber)} variant="whatsapp" external className="relative">
+              <span className="animate-glow absolute inset-0 rounded-full bg-primary/40 blur-md" />
+              <Button href={quickEnquiryUrl(undefined, currentArtist.whatsappNumber)} variant="primary" external className="relative">
                 <WhatsAppIcon className="h-5 w-5" />
                 WhatsApp Enquiry
               </Button>

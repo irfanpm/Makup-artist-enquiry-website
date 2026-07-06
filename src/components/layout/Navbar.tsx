@@ -17,19 +17,30 @@ const links = [
   { label: "Contact", href: "/#contact" },
 ];
 
-export default function Navbar() {
+interface NavbarProps {
+  settings?: any;
+}
+
+export default function Navbar({ settings }: NavbarProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 border-b border-primary/10 bg-background/90 backdrop-blur-md">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
         <Link href="/" className="flex flex-col leading-tight" onClick={() => setOpen(false)}>
-          <span className="font-serif text-xl font-semibold text-secondary">
-            {artist.name}
-          </span>
-          <span className="text-[11px] uppercase tracking-[0.25em] text-primary">
-            Makeup Artist
-          </span>
+          {settings?.logoImage?.url ? (
+            <img
+              src={settings.logoImage.url}
+              alt={settings.artistName || artist.name}
+              className="h-24 md:h-28 w-auto object-contain mix-blend-multiply"
+            />
+          ) : (
+            <img
+              src="/logo.png"
+              alt={settings?.artistName || artist.name}
+              className="h-24 md:h-28 w-auto object-contain mix-blend-multiply"
+            />
+          )}
         </Link>
 
         {/* Desktop links */}
@@ -48,12 +59,12 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           <a
-            href={quickEnquiryUrl()}
+            href={quickEnquiryUrl(undefined, settings?.whatsappNumber)}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden items-center gap-2 rounded-full bg-whatsapp px-5 py-2 text-sm font-semibold text-white transition hover:brightness-95 md:inline-flex"
+            className="hidden items-center gap-2 rounded-full border border-primary/30 bg-transparent px-5 py-2 text-sm font-semibold text-secondary transition hover:bg-primary/5 md:inline-flex"
           >
-            <WhatsAppIcon className="h-4 w-4" />
+            <WhatsAppIcon className="h-4 w-4 text-primary" />
             Enquire Now
           </a>
 
@@ -96,12 +107,12 @@ export default function Navbar() {
           ))}
           <li className="pt-2">
             <a
-              href={quickEnquiryUrl()}
+              href={quickEnquiryUrl(undefined, settings?.whatsappNumber)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-full bg-whatsapp px-5 py-3 text-sm font-semibold text-white"
+              className="flex items-center justify-center gap-2 rounded-full border border-primary/30 bg-transparent px-5 py-3 text-sm font-semibold text-secondary hover:bg-primary/5"
             >
-              <WhatsAppIcon className="h-4 w-4" />
+              <WhatsAppIcon className="h-4 w-4 text-primary" />
               Enquire on WhatsApp
             </a>
           </li>

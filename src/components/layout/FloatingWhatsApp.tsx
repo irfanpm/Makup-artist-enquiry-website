@@ -1,10 +1,14 @@
 import { quickEnquiryUrl } from "@/lib/whatsapp";
 import WhatsAppIcon from "@/components/ui/WhatsAppIcon";
 
-export default function FloatingWhatsApp() {
+interface FloatingWhatsAppProps {
+  settings?: any;
+}
+
+export default function FloatingWhatsApp({ settings }: FloatingWhatsAppProps) {
   return (
     <a
-      href={quickEnquiryUrl()}
+      href={quickEnquiryUrl(undefined, settings?.whatsappNumber)}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"

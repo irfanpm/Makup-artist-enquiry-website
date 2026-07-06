@@ -23,6 +23,9 @@ export default function SettingsForm({ settings }: SettingsFormProps) {
   const [awards, setAwards] = useState<string[]>(settings?.awards || [""]);
   const [heroImage, setHeroImage] = useState(settings?.heroImage || null);
   const [profileImage, setProfileImage] = useState(settings?.profileImage || null);
+  const [logoImage, setLogoImage] = useState(settings?.logoImage || null);
+  const [beforeImage, setBeforeImage] = useState(settings?.beforeImage || null);
+  const [afterImage, setAfterImage] = useState(settings?.afterImage || null);
 
   // Contact fields
   const [whatsappNumber, setWhatsappNumber] = useState(settings?.whatsappNumber || "");
@@ -99,6 +102,9 @@ export default function SettingsForm({ settings }: SettingsFormProps) {
       awards: awards.filter(Boolean),
       heroImage: heroImage || undefined,
       profileImage: profileImage || undefined,
+      logoImage: logoImage || undefined,
+      beforeImage: beforeImage || undefined,
+      afterImage: afterImage || undefined,
       whatsappNumber,
       phone,
       email,
@@ -218,11 +224,24 @@ export default function SettingsForm({ settings }: SettingsFormProps) {
               </div>
             </div>
 
-            {/* Images: Hero & Profile */}
-            <div className="grid gap-6 sm:grid-cols-2 pt-4 border-t border-primary/5">
+            {/* Images: Logo, Profile & Hero */}
+            <div className="grid gap-6 sm:grid-cols-3 pt-4 border-t border-primary/5">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Brand Logo Image</label>
+                <ImageUploader
+                  id="logo-image-upload"
+                  aspect="aspect-square"
+                  value={logoImage || undefined}
+                  onUploadComplete={setLogoImage}
+                  onRemove={() => setLogoImage(null)}
+                />
+              </div>
+
               <div className="space-y-2">
                 <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Profile Headshot Image</label>
                 <ImageUploader
+                  id="profile-image-upload"
+                  aspect="aspect-square"
                   value={profileImage || undefined}
                   onUploadComplete={setProfileImage}
                   onRemove={() => setProfileImage(null)}
@@ -232,9 +251,36 @@ export default function SettingsForm({ settings }: SettingsFormProps) {
               <div className="space-y-2">
                 <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Hero Banner Image</label>
                 <ImageUploader
+                  id="hero-image-upload"
+                  aspect="aspect-video"
                   value={heroImage || undefined}
                   onUploadComplete={setHeroImage}
                   onRemove={() => setHeroImage(null)}
+                />
+              </div>
+            </div>
+
+            {/* Images: Before & After makeover */}
+            <div className="grid gap-6 sm:grid-cols-2 pt-4 border-t border-primary/5">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Before Makeover Image</label>
+                <ImageUploader
+                  id="before-image-upload"
+                  aspect="aspect-[3/4]"
+                  value={beforeImage || undefined}
+                  onUploadComplete={setBeforeImage}
+                  onRemove={() => setBeforeImage(null)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-secondary">After Makeover Image</label>
+                <ImageUploader
+                  id="after-image-upload"
+                  aspect="aspect-[3/4]"
+                  value={afterImage || undefined}
+                  onUploadComplete={setAfterImage}
+                  onRemove={() => setAfterImage(null)}
                 />
               </div>
             </div>

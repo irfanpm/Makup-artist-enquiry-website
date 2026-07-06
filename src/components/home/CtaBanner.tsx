@@ -38,7 +38,7 @@ export default function CtaBanner() {
             href={quickEnquiryUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-3 rounded-full bg-whatsapp px-9 py-4 text-base font-semibold text-white shadow-xl shadow-whatsapp/30 transition-all duration-200 hover:-translate-y-1 hover:brightness-95"
+            className="mt-8 inline-flex items-center gap-3 rounded-full bg-primary px-9 py-4 text-base font-semibold text-white shadow-xl shadow-primary/30 transition-all duration-200 hover:-translate-y-1 hover:bg-primary-dark"
           >
             <WhatsAppIcon className="h-6 w-6" />
             Reserve Your Date on WhatsApp
