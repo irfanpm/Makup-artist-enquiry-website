@@ -3,12 +3,16 @@
 import { useState } from "react";
 
 interface ImageUploaderProps {
+  id?: string;
+  aspect?: string;
   onUploadComplete: (image: { url: string; publicId: string }) => void;
   onRemove: () => void;
   value?: { url: string; publicId?: string };
 }
 
 export default function ImageUploader({
+  id = "file-upload",
+  aspect = "aspect-video",
   onUploadComplete,
   onRemove,
   value,
@@ -100,7 +104,7 @@ export default function ImageUploader({
   return (
     <div className="space-y-4">
       {value?.url ? (
-        <div className="relative aspect-video w-full max-w-xs overflow-hidden rounded-2xl border border-primary/10 shadow-sm">
+        <div className={`relative w-full max-w-xs overflow-hidden rounded-2xl border border-primary/10 shadow-sm ${aspect}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value.url}
@@ -137,13 +141,13 @@ export default function ImageUploader({
             </svg>
             <div className="flex text-sm text-foreground/60">
               <label
-                htmlFor="file-upload"
+                htmlFor={id}
                 className="relative cursor-pointer rounded-md font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary hover:text-primary-dark transition"
               >
                 <span>Upload a file</span>
                 <input
-                  id="file-upload"
-                  name="file-upload"
+                  id={id}
+                  name={id}
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}

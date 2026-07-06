@@ -10,17 +10,30 @@ const quickLinks = [
   { label: "Contact", href: "/#contact" },
 ];
 
-export default function Footer() {
+interface FooterProps {
+  settings?: any;
+}
+
+export default function Footer({ settings }: FooterProps) {
   return (
     <footer className="bg-secondary text-white/80">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-3 md:px-6">
         <div>
-          <p className="font-serif text-2xl font-semibold text-white">{artist.name}</p>
-          <p className="mt-1 text-xs uppercase tracking-[0.25em] text-primary">
-            {artist.title}
-          </p>
+          {settings?.logoImage?.url ? (
+            <img
+              src={settings.logoImage.url}
+              alt={settings.artistName || artist.name}
+              className="h-24 md:h-28 w-auto object-contain brightness-0 invert mb-3 mix-blend-screen"
+            />
+          ) : (
+            <img
+              src="/logo.png"
+              alt={settings?.artistName || artist.name}
+              className="h-24 md:h-28 w-auto object-contain brightness-0 invert mb-3 mix-blend-screen"
+            />
+          )}
           <p className="mt-4 max-w-xs text-sm leading-relaxed">
-            {artist.tagline}. Serving brides across Kerala with premium HD &
+            {settings?.bio || artist.tagline}. Serving brides across Kerala with premium HD &
             airbrush makeup.
           </p>
         </div>

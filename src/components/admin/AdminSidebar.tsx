@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   session: any;
+  artistName?: string;
+  logoUrl?: string | null;
 }
 
 const menuItems = [
@@ -104,20 +106,30 @@ const menuItems = [
   },
 ];
 
-export default function AdminSidebar({ session }: SidebarProps) {
+export default function AdminSidebar({ session, artistName: propArtistName, logoUrl }: SidebarProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const artistName = session?.user?.name || "Artist";
+  const artistName = propArtistName || session?.user?.name || "Artist";
 
   return (
     <>
       {/* Mobile Navbar Header */}
       <div className="flex items-center justify-between border-b border-primary/10 bg-white px-4 py-3 md:hidden sticky top-0 z-40">
-        <Link href="/admin" className="flex flex-col leading-tight">
-          <span className="font-serif text-lg font-bold text-secondary">
-            {artistName}
-          </span>
+        <Link href="/admin" className="flex flex-col leading-tight items-start">
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={artistName}
+              className="h-14 w-auto object-contain mb-0.5 mix-blend-multiply"
+            />
+          ) : (
+            <img
+              src="/logo.png"
+              alt={artistName}
+              className="h-14 w-auto object-contain mb-0.5 mix-blend-multiply"
+            />
+          )}
           <span className="text-[9px] uppercase tracking-wider text-primary">
             Admin Dashboard
           </span>
@@ -144,13 +156,21 @@ export default function AdminSidebar({ session }: SidebarProps) {
         )}
       >
         {/* Header (Desktop Only) */}
-        <div className="hidden flex-col p-6 border-b border-primary/5 md:flex">
-          <span className="font-serif text-xl font-bold text-secondary">
-            {artistName}
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.2em] text-primary mt-0.5">
-            Admin Portal
-          </span>
+        <div className="hidden flex-col p-6 border-b border-primary/5 md:flex items-start">
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={artistName}
+              className="h-24 md:h-28 w-auto object-contain mb-1 mix-blend-multiply"
+            />
+          ) : (
+            <img
+              src="/logo.png"
+              alt={artistName}
+              className="h-24 md:h-28 w-auto object-contain mb-1 mix-blend-multiply"
+            />
+          )}
+        
         </div>
 
         {/* Menu Navigation */}

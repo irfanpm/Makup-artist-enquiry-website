@@ -14,8 +14,11 @@ export interface ISettings extends Document {
   specializations: string[];
   certifications: string[];
   awards: string[];
+  logoImage?: IImage;
   heroImage?: IImage;
   profileImage?: IImage;
+  beforeImage?: IImage;
+  afterImage?: IImage;
   // Contact & social
   whatsappNumber: string;
   phone?: string;
@@ -47,8 +50,11 @@ const SettingsSchema = new Schema<ISettings>(
     specializations: [String],
     certifications: [String],
     awards: [String],
+    logoImage: ImageSchema,
     heroImage: ImageSchema,
     profileImage: ImageSchema,
+    beforeImage: ImageSchema,
+    afterImage: ImageSchema,
     whatsappNumber: { type: String, required: true },
     phone: String,
     email: String,
