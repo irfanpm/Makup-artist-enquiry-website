@@ -56,9 +56,12 @@ export interface Faq {
   answer: string;
 }
 
-export type DayStatus = "available" | "booked" | "holiday";
+export type DayStatus = "available" | "booked" | "holiday" | "partially_booked";
 
 export interface AvailabilityEntry {
   date: string; // "YYYY-MM-DD"
   status: DayStatus;
+  note?: string;
+  maxBookings?: number;
+  bookedCount?: number;
 }

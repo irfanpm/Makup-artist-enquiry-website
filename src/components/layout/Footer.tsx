@@ -4,6 +4,7 @@ import { artist } from "@/data/artist";
 const quickLinks = [
   { label: "Services", href: "/services" },
   { label: "Look Finder", href: "/reels" },
+  { label: "Availability", href: "/availability" },
   { label: "Portfolio", href: "/#portfolio" },
   { label: "Reviews", href: "/#reviews" },
   { label: "FAQ", href: "/#faq" },

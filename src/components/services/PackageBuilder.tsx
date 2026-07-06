@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { AddOn, Service } from "@/types";
+import { useMemo, useState, useEffect } from "react";
+import type { AddOn, Service, AvailabilityEntry } from "@/types";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { formatPrice, cn } from "@/lib/utils";
 import WhatsAppIcon from "@/components/ui/WhatsAppIcon";
@@ -11,14 +11,41 @@ interface PackageBuilderProps {
   service: Service;
   addons: AddOn[];
   whatsappNumber?: string;
+  availability?: AvailabilityEntry[];
 }
 
-export default function PackageBuilder({ service, addons, whatsappNumber }: PackageBuilderProps) {
+export default function PackageBuilder({
+  service,
+  addons,
+  whatsappNumber,
+  availability = [],
+}: PackageBuilderProps) {
   const [selected, setSelected] = useState<string[]>([]);
   const [eventDate, setEventDate] = useState("");
   const [location, setLocation] = useState("");
   const [persons, setPersons] = useState("");
   const [referenceReelUrl, setReferenceReelUrl] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const dateParam = params.get("date");
+      if (dateParam) {
+        setEventDate(dateParam);
+      }
+    }
+  }, []);
+
+  const dateStatus = useMemo(() => {
+    if (!eventDate) return null;
+    const entry = availability.find((a) => a.date === eventDate);
+    if (!entry) return { status: "available" as const };
+    return {
+      status: entry.status,
+      maxBookings: entry.maxBookings ?? 1,
+      bookedCount: entry.bookedCount ?? (entry.status === "booked" ? 1 : 0),
+    };
+  }, [eventDate, availability]);
 
   const selectedAddons = useMemo(
     () => addons.filter((a) => selected.includes(a.name)),
@@ -125,6 +152,30 @@ export default function PackageBuilder({ service, addons, whatsappNumber }: Pack
             onChange={(e) => setEventDate(e.target.value)}
             className="w-full rounded-lg border border-primary/20 bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
           />
+          {dateStatus && (
+            <div className="mt-1.5 leading-none">
+              {dateStatus.status === "holiday" && (
+                <span className="text-[11px] font-semibold text-slate-500 inline-flex items-center gap-1">
+                  <span>⚠️</span> Artist is off-duty/on holiday.
+                </span>
+              )}
+              {dateStatus.status === "booked" && (
+                <span className="text-[11px] font-semibold text-rose-600 inline-flex items-center gap-1">
+                  <span>⚠️</span> Fully booked (waitlist only).
+                </span>
+              )}
+              {dateStatus.status === "partially_booked" && (
+                <span className="text-[11px] font-semibold text-amber-600 inline-flex items-center gap-1">
+                  <span>ℹ️</span> {dateStatus.maxBookings - dateStatus.bookedCount} slots left ({dateStatus.bookedCount}/{dateStatus.maxBookings} booked).
+                </span>
+              )}
+              {dateStatus.status === "available" && (
+                <span className="text-[11px] font-semibold text-emerald-600 inline-flex items-center gap-1">
+                  <span>✓</span> Date is available!
+                </span>
+              )}
+            </div>
+          )}
         </div>
         <div>
           <label htmlFor="pb-location" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-foreground/60">

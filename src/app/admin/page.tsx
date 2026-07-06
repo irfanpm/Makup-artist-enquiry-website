@@ -17,7 +17,7 @@ export default async function AdminDashboard() {
   const pendingReviews = allReviews.filter((r: any) => !r.isApproved);
   const activeServices = services.filter((s: any) => s.isActive).length;
   
-  const bookedDates = availability.filter((a: any) => a.status === "booked");
+  const bookedDates = availability.filter((a: any) => a.status === "booked" || a.status === "partially_booked");
   const upcomingBookings = bookedDates
     .filter((a: any) => new Date(a.date) >= new Date(new Date().setHours(0,0,0,0)))
     .slice(0, 5);
@@ -194,7 +194,7 @@ export default async function AdminDashboard() {
                       })}
                     </span>
                     <span className="text-xs text-foreground/60 max-w-[120px] truncate">
-                      {booking.note || "Booked"}
+                      {booking.note || (booking.status === "partially_booked" ? `Partially Booked (${booking.bookedCount}/${booking.maxBookings})` : "Booked")}
                     </span>
                   </li>
                 ))}

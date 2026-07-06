@@ -5,6 +5,7 @@ import { getServices, getServiceBySlug } from "@/actions/services";
 import { getAddOns } from "@/actions/addons";
 import { getReels } from "@/actions/reels";
 import { getSettings } from "@/actions/settings";
+import { getAvailabilityEntries } from "@/actions/availability";
 import { formatPrice, formatDuration } from "@/lib/utils";
 import PackageBuilder from "@/components/services/PackageBuilder";
 import ReelEmbed from "@/components/services/ReelEmbed";
@@ -35,8 +36,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   const service = await getServiceBySlug(slug).catch(() => null);
   if (!service || !service.isActive) notFound();
 
-  // Load add-ons, reels, settings, and other services in parallel
-  const [addons, reels, settings, allServices] = await Promise.all([
+  // Load add-ons, reels, settings, other services, and availability in parallel
+  const [addons, reels, settings, allServices, availability] = await Promise.all([
     getAddOns().then((res) =>
       res.filter(
         (a: any) =>
@@ -48,6 +49,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
     getReels().then((res) => res.filter((r: any) => r.serviceSlug === slug)).catch(() => []),
     getSettings().catch(() => null),
     getServices().then((res) => res.filter((s: any) => s.isActive && s.slug !== slug).slice(0, 3)).catch(() => []),
+    getAvailabilityEntries().catch(() => []),
   ]);
 
   const whatsappNumber = settings?.whatsappNumber;
@@ -141,6 +143,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             service={adaptedService}
             addons={addons}
             whatsappNumber={whatsappNumber}
+            availability={availability}
           />
         </div>
 

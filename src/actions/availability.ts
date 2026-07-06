@@ -16,19 +16,36 @@ export async function getAvailabilityEntries() {
   }
 }
 
-export async function setDateStatus(date: string, status: "available" | "booked" | "holiday", note?: string) {
+export async function setDateStatus(
+  date: string,
+  status: "available" | "booked" | "holiday" | "partially_booked",
+  note?: string,
+  maxBookings?: number,
+  bookedCount?: number
+) {
   const session = await auth();
   if (!session) throw new Error("Unauthorized");
 
   await dbConnect();
   try {
-    if (status === "available") {
+    const isDefaultAvailable =
+      status === "available" &&
+      (!note || note.trim() === "") &&
+      (!maxBookings || maxBookings === 1) &&
+      (!bookedCount || bookedCount === 0);
+
+    if (isDefaultAvailable) {
       // Available is the default, so we can just delete the entry to keep the DB clean
       await Availability.findOneAndDelete({ date });
     } else {
       await Availability.findOneAndUpdate(
         { date },
-        { status, note },
+        {
+          status,
+          note,
+          maxBookings: maxBookings ?? 1,
+          bookedCount: bookedCount ?? 0,
+        },
         { upsert: true, new: true }
       );
     }
@@ -61,8 +78,10 @@ export async function clearDate(date: string) {
 export async function bulkSetRange(
   startDateStr: string,
   endDateStr: string,
-  status: "available" | "booked" | "holiday",
-  note?: string
+  status: "available" | "booked" | "holiday" | "partially_booked",
+  note?: string,
+  maxBookings?: number,
+  bookedCount?: number
 ) {
   const session = await auth();
   if (!session) throw new Error("Unauthorized");
@@ -82,7 +101,13 @@ export async function bulkSetRange(
     while (currentDate <= end) {
       const dateString = currentDate.toISOString().split("T")[0];
       
-      if (status === "available") {
+      const isDefaultAvailable =
+        status === "available" &&
+        (!note || note.trim() === "") &&
+        (!maxBookings || maxBookings === 1) &&
+        (!bookedCount || bookedCount === 0);
+
+      if (isDefaultAvailable) {
         bulkOps.push({
           deleteOne: {
             filter: { date: dateString }
@@ -92,7 +117,14 @@ export async function bulkSetRange(
         bulkOps.push({
           updateOne: {
             filter: { date: dateString },
-            update: { $set: { status, note } },
+            update: {
+              $set: {
+                status,
+                note,
+                maxBookings: maxBookings ?? 1,
+                bookedCount: bookedCount ?? 0,
+              }
+            },
             upsert: true
           }
         });

@@ -16,13 +16,17 @@ export default function AvailabilityManager({
   
   // Single date settings
   const [selectedDate, setSelectedDate] = useState("");
-  const [status, setStatus] = useState<"available" | "booked" | "holiday">("booked");
+  const [status, setStatus] = useState<"available" | "booked" | "holiday" | "partially_booked">("booked");
+  const [maxBookings, setMaxBookings] = useState(1);
+  const [bookedCount, setBookedCount] = useState(1);
   const [note, setNote] = useState("");
   
   // Bulk range settings
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
-  const [rangeStatus, setRangeStatus] = useState<"available" | "booked" | "holiday">("booked");
+  const [rangeStatus, setRangeStatus] = useState<"available" | "booked" | "holiday" | "partially_booked">("booked");
+  const [rangeMaxBookings, setRangeMaxBookings] = useState(1);
+  const [rangeBookedCount, setRangeBookedCount] = useState(1);
   const [rangeNote, setRangeNote] = useState("");
   
   const [loading, setLoading] = useState(false);
@@ -90,9 +94,13 @@ export default function AvailabilityManager({
     if (existing) {
       setStatus(existing.status);
       setNote(existing.note || "");
+      setMaxBookings(existing.maxBookings ?? 1);
+      setBookedCount(existing.bookedCount ?? (existing.status === "booked" ? 1 : 0));
     } else {
       setStatus("booked");
       setNote("");
+      setMaxBookings(1);
+      setBookedCount(1);
     }
     setError("");
     setSuccess("");
@@ -107,15 +115,46 @@ export default function AvailabilityManager({
     setError("");
     setSuccess("");
 
+    let finalStatus = status;
+    let finalBookedCount = bookedCount;
+    let finalMaxBookings = maxBookings;
+
+    if (status === "booked" || status === "partially_booked") {
+      if (bookedCount === 0) {
+        finalStatus = "available";
+      } else if (bookedCount < maxBookings) {
+        finalStatus = "partially_booked";
+      } else {
+        finalStatus = "booked";
+      }
+    } else if (status === "available") {
+      finalBookedCount = 0;
+    } else if (status === "holiday") {
+      finalBookedCount = 0;
+      finalMaxBookings = 1;
+    }
+
     try {
-      await setDateStatus(selectedDate, status, note);
+      await setDateStatus(selectedDate, finalStatus, note, finalMaxBookings, finalBookedCount);
       
       let nextEntries;
-      if (status === "available") {
+      const isDefaultAvailable =
+        finalStatus === "available" &&
+        (!note || note.trim() === "") &&
+        (!finalMaxBookings || finalMaxBookings === 1) &&
+        (!finalBookedCount || finalBookedCount === 0);
+
+      if (isDefaultAvailable) {
         nextEntries = entries.filter((e) => e.date !== selectedDate);
       } else {
         const existingIndex = entries.findIndex((e) => e.date === selectedDate);
-        const newEntry = { date: selectedDate, status, note };
+        const newEntry = {
+          date: selectedDate,
+          status: finalStatus,
+          note,
+          maxBookings: finalMaxBookings,
+          bookedCount: finalBookedCount
+        };
         if (existingIndex > -1) {
           nextEntries = [...entries];
           nextEntries[existingIndex] = newEntry;
@@ -144,13 +183,27 @@ export default function AvailabilityManager({
     setError("");
     setSuccess("");
 
+    let finalStatus = rangeStatus;
+    let finalBookedCount = rangeBookedCount;
+    let finalMaxBookings = rangeMaxBookings;
+
+    if (rangeStatus === "booked" || rangeStatus === "partially_booked") {
+      if (rangeBookedCount === 0) {
+        finalStatus = "available";
+      } else if (rangeBookedCount < rangeMaxBookings) {
+        finalStatus = "partially_booked";
+      } else {
+        finalStatus = "booked";
+      }
+    } else if (rangeStatus === "available") {
+      finalBookedCount = 0;
+    } else if (rangeStatus === "holiday") {
+      finalBookedCount = 0;
+      finalMaxBookings = 1;
+    }
+
     try {
-      await bulkSetRange(rangeStart, rangeEnd, rangeStatus, rangeNote);
-      
-      // Simply re-fetch the updated calendar data for state simplicity
-      // (Since bulk update can modify a lot of records, local re-fetching or reloading is safest)
-      // For instant response, let's reload availability from the server action
-      const response = await fetch("/api/seed"); // Wait, we don't have api to fetch, we can call refresh
+      await bulkSetRange(rangeStart, rangeEnd, finalStatus, rangeNote, finalMaxBookings, finalBookedCount);
       window.location.reload(); // Hard reload is safe for bulk operations
     } catch (err: any) {
       setError(err.message || "Failed to perform bulk range update");
@@ -212,7 +265,9 @@ export default function AvailabilityManager({
             
             let cellBg = "bg-emerald-50 text-emerald-800 border-emerald-100 hover:bg-emerald-100/50";
             if (entry?.status === "booked") {
-              cellBg = "bg-red-50 text-red-800 border-red-100 hover:bg-red-100/50";
+              cellBg = "bg-rose-50 text-rose-800 border-rose-100 hover:bg-rose-100/50";
+            } else if (entry?.status === "partially_booked") {
+              cellBg = "bg-amber-50 text-amber-800 border-amber-100 hover:bg-amber-100/50";
             } else if (entry?.status === "holiday") {
               cellBg = "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200/50";
             }
@@ -226,6 +281,13 @@ export default function AvailabilityManager({
                 }`}
               >
                 <span>{day}</span>
+                
+                {entry && (entry.status === "booked" || entry.status === "partially_booked" || (entry.maxBookings && entry.maxBookings > 1)) && (
+                  <span className="text-[9px] font-bold opacity-90 my-0.5 px-1 py-0.5 rounded bg-white/70 shadow-sm border border-black/5 text-secondary">
+                    {entry.bookedCount ?? (entry.status === "booked" ? 1 : 0)}/{entry.maxBookings ?? 1} Works
+                  </span>
+                )}
+
                 {entry?.note && (
                   <span className="text-[9px] truncate max-w-full font-normal opacity-70">
                     {entry.note}
@@ -243,7 +305,11 @@ export default function AvailabilityManager({
             Available (Default)
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-3.5 w-3.5 rounded-full bg-red-50 border border-red-100 inline-block" />
+            <span className="h-3.5 w-3.5 rounded-full bg-amber-50 border border-amber-100 inline-block" />
+            Partially Booked
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-3.5 w-3.5 rounded-full bg-rose-50 border border-rose-100 inline-block" />
             Booked / Filled
           </div>
           <div className="flex items-center gap-1.5">
@@ -290,15 +356,46 @@ export default function AvailabilityManager({
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Status</label>
                 <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
+                  value={status === "partially_booked" ? "booked" : status}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setStatus(val as any);
+                    if (val === "booked") {
+                      if (bookedCount === 0) setBookedCount(1);
+                    }
+                  }}
                   className="mt-1 block w-full rounded-full border border-primary/20 bg-white px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                 >
                   <option value="available">Available (Green)</option>
-                  <option value="booked">Booked (Red)</option>
+                  <option value="booked">Booked / Slots (Red/Orange)</option>
                   <option value="holiday">Holiday/Off (Grey)</option>
                 </select>
               </div>
+
+              {(status === "booked" || status === "partially_booked") && (
+                <div className="grid gap-3 grid-cols-2">
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Max Capacity</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={maxBookings}
+                      onChange={(e) => setMaxBookings(Math.max(1, Number(e.target.value)))}
+                      className="mt-1 block w-full rounded-full border border-primary/20 bg-white px-4 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Booked Count</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={bookedCount}
+                      onChange={(e) => setBookedCount(Math.max(0, Number(e.target.value)))}
+                      className="mt-1 block w-full rounded-full border border-primary/20 bg-white px-4 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Admin Note (optional)</label>
@@ -358,15 +455,46 @@ export default function AvailabilityManager({
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Status</label>
               <select
-                value={rangeStatus}
-                onChange={(e) => setRangeStatus(e.target.value as any)}
+                value={rangeStatus === "partially_booked" ? "booked" : rangeStatus}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setRangeStatus(val as any);
+                  if (val === "booked") {
+                    if (rangeBookedCount === 0) setRangeBookedCount(1);
+                  }
+                }}
                 className="mt-1 block w-full rounded-full border border-primary/20 bg-white px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
               >
                 <option value="available">Available (Green)</option>
-                <option value="booked">Booked (Red)</option>
+                <option value="booked">Booked / Slots (Red/Orange)</option>
                 <option value="holiday">Holiday/Off (Grey)</option>
               </select>
             </div>
+
+            {(rangeStatus === "booked" || rangeStatus === "partially_booked") && (
+              <div className="grid gap-3 grid-cols-2">
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Max Capacity</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={rangeMaxBookings}
+                    onChange={(e) => setRangeMaxBookings(Math.max(1, Number(e.target.value)))}
+                    className="mt-1 block w-full rounded-full border border-primary/20 bg-white px-4 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Booked Count</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={rangeBookedCount}
+                    onChange={(e) => setRangeBookedCount(Math.max(0, Number(e.target.value)))}
+                    className="mt-1 block w-full rounded-full border border-primary/20 bg-white px-4 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Admin Note (optional)</label>
