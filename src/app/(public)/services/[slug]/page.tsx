@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getServices, getServiceBySlug } from "@/actions/services";
 import { getAddOns } from "@/actions/addons";
 import { getReels } from "@/actions/reels";
+import { getPortfolioItems } from "@/actions/portfolio";
 import { getSettings } from "@/actions/settings";
 import { getAvailabilityEntries } from "@/actions/availability";
 import { formatPrice, formatDuration } from "@/lib/utils";
@@ -11,6 +12,7 @@ import PackageBuilder from "@/components/services/PackageBuilder";
 import ReelEmbed from "@/components/services/ReelEmbed";
 import ServiceCard from "@/components/services/ServiceCard";
 import SectionHeading from "@/components/ui/SectionHeading";
+import CustomerPhotosGallery from "@/components/services/CustomerPhotosGallery";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -36,8 +38,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   const service = await getServiceBySlug(slug).catch(() => null);
   if (!service || !service.isActive) notFound();
 
-  // Load add-ons, reels, settings, other services, and availability in parallel
-  const [addons, reels, settings, allServices, availability] = await Promise.all([
+  // Load add-ons, reels, portfolio items, settings, other services, and availability in parallel
+  const [addons, reels, portfolioItems, settings, allServices, availability] = await Promise.all([
     getAddOns().then((res) =>
       res.filter(
         (a: any) =>
@@ -47,6 +49,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       )
     ).catch(() => []),
     getReels().then((res) => res.filter((r: any) => r.serviceSlug === slug)).catch(() => []),
+    getPortfolioItems(undefined, false, slug).catch(() => []),
     getSettings().catch(() => null),
     getServices().then((res) => res.filter((s: any) => s.isActive && s.slug !== slug).slice(0, 3)).catch(() => []),
     getAvailabilityEntries().catch(() => []),
@@ -146,6 +149,9 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             availability={availability}
           />
         </div>
+
+        {/* Customer Photos - linked portfolio items */}
+        <CustomerPhotosGallery portfolioItems={portfolioItems} serviceName={service.name} />
 
         {/* Previous works — Instagram reels */}
         {reels.length > 0 && (

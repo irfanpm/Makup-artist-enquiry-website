@@ -1,11 +1,10 @@
-import { featuredServices } from "@/data/services";
 import SectionHeading from "@/components/ui/SectionHeading";
 import ServiceCard from "@/components/services/ServiceCard";
 import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 
 export default function FeaturedServices({ servicesData }: { servicesData?: any[] }) {
-  const servicesList = servicesData || featuredServices;
+  const servicesList = servicesData || [];
   return (
     <section className="bg-muted/60 py-16 md:py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">

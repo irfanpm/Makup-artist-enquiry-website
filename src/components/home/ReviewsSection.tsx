@@ -12,7 +12,7 @@ function initials(name: string) {
 }
 
 export default function ReviewsSection({ reviewsData }: { reviewsData?: any[] }) {
-  const list = reviewsData || featuredReviews;
+  const list = reviewsData && reviewsData.length > 0 ? reviewsData : featuredReviews;
   const ratingSum = list.reduce((acc, curr) => acc + curr.rating, 0);
   const avg = list.length > 0 ? (ratingSum / list.length).toFixed(1) : averageRating;
 

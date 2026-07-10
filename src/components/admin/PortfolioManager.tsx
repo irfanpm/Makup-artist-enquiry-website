@@ -6,6 +6,7 @@ import ImageUploader from "./ImageUploader";
 
 interface PortfolioManagerProps {
   initialItems: any[];
+  services?: any[];
 }
 
 const categories = [
@@ -18,11 +19,13 @@ const categories = [
 
 export default function PortfolioManager({
   initialItems,
+  services = [],
 }: PortfolioManagerProps) {
   const [items, setItems] = useState(initialItems);
   const [selectedTab, setSelectedTab] = useState("all");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("bridal");
+  const [serviceSlug, setServiceSlug] = useState("");
   const [image, setImage] = useState<{ url: string; publicId: string } | null>(null);
   const [isFeatured, setIsFeatured] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,6 +49,7 @@ export default function PortfolioManager({
     const payload = {
       title,
       category,
+      serviceSlug,
       image,
       isFeatured,
     };
@@ -54,6 +58,7 @@ export default function PortfolioManager({
       const created = await addPortfolioItem(payload);
       setItems([created, ...items]);
       setTitle("");
+      setServiceSlug("");
       setImage(null);
       setIsFeatured(false);
     } catch (err: any) {
@@ -134,7 +139,9 @@ export default function PortfolioManager({
                   </div>
                   <div className="text-white space-y-0.5">
                     {item.title && <p className="text-xs font-bold">{item.title}</p>}
-                    <p className="text-[10px] capitalize text-white/70">{item.category}</p>
+                    <p className="text-[10px] capitalize text-white/70">
+                      {item.category} {item.serviceSlug ? ` • ${services.find((s) => s.slug === item.serviceSlug)?.name || item.serviceSlug}` : ""}
+                    </p>
                     {item.isFeatured && (
                       <span className="inline-block rounded-full bg-amber-400 px-2 py-0.5 text-[8px] font-bold text-secondary">
                         ★ Featured
@@ -191,6 +198,22 @@ export default function PortfolioManager({
               {categories.map((cat) => (
                 <option key={cat.value} value={cat.value}>
                   {cat.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-secondary">Linked Service (Optional)</label>
+            <select
+              value={serviceSlug}
+              onChange={(e) => setServiceSlug(e.target.value)}
+              className="mt-1 block w-full rounded-full border border-primary/20 bg-white px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            >
+              <option value="">-- No linked service --</option>
+              {services.map((service) => (
+                <option key={service.slug} value={service.slug}>
+                  {service.name}
                 </option>
               ))}
             </select>

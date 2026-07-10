@@ -5,6 +5,7 @@ export interface IPortfolio extends Document {
   title?: string;
   category: "bridal" | "reception" | "engagement" | "party" | "photoshoot";
   image: IImage;
+  serviceSlug?: string;
   isFeatured: boolean;
   sortOrder: number;
   createdAt: Date;
@@ -25,6 +26,7 @@ const PortfolioSchema = new Schema<IPortfolio>(
       enum: ["bridal", "reception", "engagement", "party", "photoshoot"],
     },
     image: { type: ImageSchema, required: true },
+    serviceSlug: { type: String, default: "" },
     isFeatured: { type: Boolean, default: false },
     sortOrder: { type: Number, default: 0 },
   },

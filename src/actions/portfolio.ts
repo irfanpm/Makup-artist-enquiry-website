@@ -6,7 +6,7 @@ import Portfolio from "@/models/Portfolio";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { auth } from "@/lib/auth";
 
-export async function getPortfolioItems(category?: string, onlyFeatured = false) {
+export async function getPortfolioItems(category?: string, onlyFeatured = false, serviceSlug?: string) {
   await dbConnect();
   try {
     const filter: any = {};
@@ -15,6 +15,9 @@ export async function getPortfolioItems(category?: string, onlyFeatured = false)
     }
     if (onlyFeatured) {
       filter.isFeatured = true;
+    }
+    if (serviceSlug) {
+      filter.serviceSlug = serviceSlug;
     }
 
     const items = await Portfolio.find(filter).sort({ sortOrder: 1, createdAt: -1 });
