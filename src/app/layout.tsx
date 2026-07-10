@@ -15,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: `${artist.name} — ${artist.title} in Kochi`,
+  title: `Sahala `,
   description: `${artist.tagline}. Bridal, HD & airbrush makeup by ${artist.name}, ${artist.yearsExperience}+ years experience, ${artist.bridesCount}+ brides. Enquire on WhatsApp.`,
 };
 

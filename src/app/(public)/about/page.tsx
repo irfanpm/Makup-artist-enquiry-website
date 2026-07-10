@@ -1,8 +1,6 @@
 import { Metadata } from "next";
 import { getSettings } from "@/actions/settings";
 import AboutSection from "@/components/home/AboutSection";
-import FaqSection from "@/components/home/FaqSection";
-import { getFaqs } from "@/actions/faqs";
 
 export const metadata: Metadata = {
   title: "About | Makeup Artist",
@@ -37,18 +35,12 @@ function formatArtistData(settings: any) {
 }
 
 export default async function AboutPage() {
-  const [settings, faqs] = await Promise.all([
-    getSettings().catch(() => null),
-    getFaqs(true).catch(() => []),
-  ]);
+  const settings = await getSettings().catch(() => null);
   const artistData = formatArtistData(settings);
 
   return (
-    <div className="flex flex-col">
-      <div className="min-h-[80vh] flex flex-col justify-center">
-        <AboutSection artistData={artistData} />
-      </div>
-      <FaqSection faqsData={faqs} />
+    <div className="min-h-[80vh] flex flex-col justify-center">
+      <AboutSection artistData={artistData} />
     </div>
   );
 }

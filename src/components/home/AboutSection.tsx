@@ -10,14 +10,13 @@ export default function AboutSection({ artistData }: { artistData?: any }) {
     {/* section */}
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 md:grid-cols-2 md:px-6">
         <Reveal from="left" className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-3xl shadow-xl shadow-primary/15">
-          {currentArtist.profileImage || artist.profileImage ? (
-            <Image
-              src={currentArtist.profileImage || artist.profileImage}
+          <Image
+            src={currentArtist.profileImage}
             alt={currentArtist.name}
             fill
             sizes="(max-width: 768px) 100vw, 45vw"
-            />
-          ) : null}
+            className="object-cover"
+          />
           <div className="absolute bottom-4 left-4 rounded-2xl bg-white/95 px-4 py-3 shadow-lg">
             <p className="font-serif text-2xl font-bold text-primary">
               {currentArtist.yearsExperience}+
