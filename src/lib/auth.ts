@@ -15,34 +15,44 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.warn("[Auth] Credentials missing email or password");
+            return null;
+          }
+
+          await dbConnect();
+
+          const email = (credentials.email as string).toLowerCase().trim();
+          const rawPassword = (credentials.password as string).trim();
+
+          const user = await AdminUser.findOne({ email });
+
+          if (!user) {
+            console.warn(`[Auth] No admin user found for email: "${email}"`);
+            return null;
+          }
+
+          const isPasswordCorrect = await bcrypt.compare(
+            rawPassword,
+            user.passwordHash
+          );
+
+          if (!isPasswordCorrect) {
+            console.warn(`[Auth] Password mismatch for email: "${email}"`);
+            return null;
+          }
+
+          console.log(`[Auth] Successful login for: "${email}"`);
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+          };
+        } catch (error) {
+          console.error("[Auth] Exception during authorize callback:", error);
           return null;
         }
-
-        await dbConnect();
-
-        const user = await AdminUser.findOne({
-          email: (credentials.email as string).toLowerCase(),
-        });
-
-        if (!user) {
-          return null;
-        }
-
-        const isPasswordCorrect = await bcrypt.compare(
-          credentials.password as string,
-          user.passwordHash
-        );
-
-        if (!isPasswordCorrect) {
-          return null;
-        }
-
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-        };
       },
     }),
   ],

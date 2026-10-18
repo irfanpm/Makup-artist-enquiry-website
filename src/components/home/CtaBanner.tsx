@@ -6,16 +6,20 @@ import Sparkle from "@/components/ui/Sparkle";
 import Reveal from "@/components/ui/Reveal";
 
 /** Full-width closing call-to-action before the FAQ/contact sections. */
-export default function CtaBanner() {
+export default function CtaBanner({ artistData }: { artistData?: any }) {
+  const currentArtist = artistData || artist;
+  
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
-      <Image
-        src={artist.heroImage}
-        alt=""
-        fill
-        sizes="100vw"
-        className="object-cover"
-      />
+      {currentArtist.heroImage && (
+        <Image
+          src={currentArtist.heroImage}
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+      )}
       <div className="absolute inset-0 bg-gradient-to-r from-secondary/95 via-secondary/85 to-primary/70" />
 
       <Sparkle className="animate-float absolute left-[10%] top-[20%] h-6 w-6 text-gold/70" />
@@ -35,7 +39,7 @@ export default function CtaBanner() {
             of everything else.
           </p>
           <a
-            href={quickEnquiryUrl()}
+            href={quickEnquiryUrl(undefined, currentArtist.whatsappNumber)}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-8 inline-flex items-center gap-3 rounded-full bg-primary px-9 py-4 text-base font-semibold text-white shadow-xl shadow-primary/30 transition-all duration-200 hover:-translate-y-1 hover:bg-primary-dark"

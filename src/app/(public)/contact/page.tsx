@@ -2,10 +2,13 @@ import { Metadata } from "next";
 import { getSettings } from "@/actions/settings";
 import ContactSection from "@/components/home/ContactSection";
 
-export const metadata: Metadata = {
-  title: "Contact | Makeup Artist",
-  description: "Get in touch for bookings and enquiries.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings().catch(() => null);
+  const title = `Contact | ${settings?.artistName || "Makeup Artist"}`;
+  const description = `Get in touch for bookings and enquiries with ${settings?.artistName || "our artist"}.`;
+
+  return { title, description };
+}
 
 function formatArtistData(settings: any) {
   if (!settings) return undefined;

@@ -59,21 +59,21 @@ export default function Footer({ settings }: FooterProps) {
             Get in Touch
           </p>
           <ul className="space-y-2.5 text-sm">
-            <li>{artist.studioAddress}</li>
+            <li>{settings?.studioAddress || artist.studioAddress}</li>
             <li>
-              <a href={`tel:${artist.phone.replace(/\s/g, "")}`} className="hover:text-primary">
-                {artist.phone}
+              <a href={`tel:${(settings?.phone || artist.phone).replace(/\s/g, "")}`} className="hover:text-primary">
+                {settings?.phone || artist.phone}
               </a>
             </li>
             <li>
-              <a href={`mailto:${artist.email}`} className="hover:text-primary">
-                {artist.email}
+              <a href={`mailto:${settings?.email || artist.email}`} className="hover:text-primary">
+                {settings?.email || artist.email}
               </a>
             </li>
           </ul>
           <div className="mt-5 flex gap-3">
             <a
-              href={artist.instagramUrl}
+              href={settings?.instagramUrl || artist.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
@@ -84,7 +84,7 @@ export default function Footer({ settings }: FooterProps) {
               </svg>
             </a>
             <a
-              href={artist.facebookUrl}
+              href={settings?.facebookUrl || artist.facebookUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook"
@@ -95,7 +95,7 @@ export default function Footer({ settings }: FooterProps) {
               </svg>
             </a>
             <a
-              href={artist.youtubeUrl}
+              href={settings?.youtubeUrl || artist.youtubeUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="YouTube"
@@ -109,7 +109,7 @@ export default function Footer({ settings }: FooterProps) {
         </div>
       </div>
       <div className="border-t border-white/10 py-5 text-center text-xs text-white/50">
-        © {new Date().getFullYear()} {artist.name} · Made with ♥ in Kochi
+        © {new Date().getFullYear()} {settings?.artistName || artist.name} · Made with ♥ in Kochi
       </div>
     </footer>
   );

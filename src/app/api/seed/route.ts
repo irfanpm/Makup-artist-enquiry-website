@@ -1,34 +1,58 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import AdminUser from "@/models/AdminUser";
 import Settings from "@/models/Settings";
 import bcrypt from "bcryptjs";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     await dbConnect();
 
-    // Check if admin user already exists
-    const adminCount = await AdminUser.countDocuments();
-    if (adminCount > 0) {
+    const searchParams = req.nextUrl.searchParams;
+    const forceReset = searchParams.get("reset") === "true";
+
+    const email = "admin@makeup.com";
+    const rawPassword = "admin123";
+    const passwordHash = await bcrypt.hash(rawPassword, 10);
+
+    const existingAdmin = await AdminUser.findOne({ email });
+
+    if (existingAdmin && !forceReset) {
       return NextResponse.json(
-        { error: "Access Denied. Seeding is disabled for security reasons." },
-        { status: 403 }
+        {
+          message: "Admin account already exists. Pass ?reset=true to update password/credentials.",
+          admin: {
+            email: existingAdmin.email,
+            name: existingAdmin.name,
+          },
+        },
+        { status: 200 }
       );
     }
 
-    // Create default admin user
-    const passwordHash = await bcrypt.hash("admin123", 10);
-    const admin = await AdminUser.create({
-      name: "Admin Artist",
-      email: "admin@makeup.com",
-      passwordHash,
-    });
+    let admin;
+    if (existingAdmin) {
+      existingAdmin.passwordHash = passwordHash;
+      admin = await existingAdmin.save();
+    } else {
+      const anyAdmin = await AdminUser.findOne();
+      if (anyAdmin) {
+        anyAdmin.email = email;
+        anyAdmin.passwordHash = passwordHash;
+        admin = await anyAdmin.save();
+      } else {
+        admin = await AdminUser.create({
+          name: "Admin Artist",
+          email,
+          passwordHash,
+        });
+      }
+    }
 
-    // Create default settings (singleton)
-    await Settings.findOneAndUpdate(
-      {},
-      {
+    // Create default settings if none exist
+    const settingsCount = await Settings.countDocuments();
+    if (settingsCount === 0) {
+      await Settings.create({
         artistName: "Admin Artist",
         whatsappNumber: "910000000000",
         tagline: "Making your special day flawless",
@@ -37,18 +61,17 @@ export async function GET() {
         specializations: ["Bridal Makeup", "Reception Makeup", "Fashion Styling"],
         certifications: ["Certified by London Academy of Makeup", "MAC Pro Masterclass"],
         awards: ["Best Bridal Artist 2025"],
-      },
-      { upsert: true, new: true }
-    );
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Seeding complete!",
+      message: "Admin credentials successfully configured!",
       admin: {
         id: admin._id,
         name: admin.name,
         email: admin.email,
-        temporaryPassword: "admin123",
+        temporaryPassword: rawPassword,
       },
     });
   } catch (error: any) {

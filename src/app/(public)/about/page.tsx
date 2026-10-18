@@ -2,10 +2,13 @@ import { Metadata } from "next";
 import { getSettings } from "@/actions/settings";
 import AboutSection from "@/components/home/AboutSection";
 
-export const metadata: Metadata = {
-  title: "About | Makeup Artist",
-  description: "Learn more about our makeup artist.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings().catch(() => null);
+  const title = `About | ${settings?.artistName || "Makeup Artist"}`;
+  const description = `Learn more about ${settings?.artistName || "our makeup artist"}, their experience and journey.`;
+
+  return { title, description };
+}
 
 function formatArtistData(settings: any) {
   if (!settings) return undefined;

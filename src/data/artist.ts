@@ -1,5 +1,6 @@
 export const artist = {
   name: "",
+  brandName: "",
   title: "",
   tagline: "",
   bio: [],

@@ -1,12 +1,6 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env.local"
-  );
-}
+const DEFAULT_LOCAL_URI = "mongodb://127.0.0.1:27017/makeup-artist";
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -25,18 +19,41 @@ if (!cached) {
 }
 
 async function dbConnect(): Promise<typeof mongoose> {
+  // If already connected, return immediately
+  if (mongoose.connection.readyState === 1) {
+    cached!.conn = mongoose;
+    return mongoose;
+  }
+
   if (cached!.conn) {
     return cached!.conn;
   }
 
   if (!cached!.promise) {
+    const uri = process.env.MONGODB_URI || DEFAULT_LOCAL_URI;
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
     };
 
-    cached!.promise = mongoose.connect(MONGODB_URI!, opts).then((m) => {
-      return m;
-    });
+    cached!.promise = (async () => {
+      try {
+        const m = await mongoose.connect(uri, opts);
+        return m;
+      } catch (err: any) {
+        if (uri !== DEFAULT_LOCAL_URI) {
+          console.warn(
+            `Primary MongoDB connection failed (${err?.message || err}). Falling back to local MongoDB (${DEFAULT_LOCAL_URI})...`
+          );
+          try {
+            await mongoose.disconnect();
+          } catch (_) {}
+          const fallbackM = await mongoose.connect(DEFAULT_LOCAL_URI, opts);
+          return fallbackM;
+        }
+        throw err;
+      }
+    })();
   }
 
   try {
